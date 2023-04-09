@@ -5,9 +5,41 @@ import os, sys
 from typing import List
 import extract_embeddings
 
+COLORMAP=['red','green','blue','red','violet','pink','orange','black','cyan','sandybrown','red','salmon']
+
 #sns.set(rc={'figure.figsize':(50,14)})
 sns.set(font_scale=6)
 #plt.rcParams.update({'font.size': 12})
+def plot_hist(data, **kwargs):
+  sns.histplot(data, **kwargs)
+
+def plot_kde(data, **kwargs):
+  sns.kdeplot(data, **kwargs)
+
+def plot_barplot(x, **kwargs):
+  sns.barplot(x=x, **kwargs)
+
+def layer_wise_summary(**kwargs):
+  layer_wise_weights = kwargs["layer_wise_weights"]
+  row_num, col_num = kwargs["row_num"], kwargs["col_num"]
+  layer_keys = kwargs["layer_keys"]
+  method = kwargs["method"]
+  method_kwargs = kwargs.get("method_kwargs",{})
+
+  row = 0
+  col = 0
+  fig, ax = plt.subplots(row_num,col_num,figsize=(45,45))
+  for each_layer_key in layer_keys:
+    method_kwargs["ax"]=ax[row][col]
+    method_kwargs["color"]=COLORMAP[row]
+    method(layer_wise_weights[each_layer_key].flatten().detach().numpy(), **method_kwargs)
+    ax[row][col].set_title(each_layer_key)
+    col = (col+1)%col_num
+    if col == 0:
+      row = row+1
+
+  fig.tight_layout()
+  plt.show()
 
 def plot_embeds(**kwargs):
     '''
